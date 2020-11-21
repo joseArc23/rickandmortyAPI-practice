@@ -1,12 +1,12 @@
-const id = 2
+let id = 1
 const API_URL = 'https://rickandmortyapi.com/api/'
 const API_ALL_CHARACTERS = 'character/'
 const url = `${API_URL}${API_ALL_CHARACTERS}`
-
-// const API_ALL_CHARACTERS = 'character/:id'
-// const url = `${API_URL}${API_ALL_CHARACTERS.replace(':id', id)}`
+const nextPage = '?page=:id'
 const opts = { crossDomain: true }
+
 const list = document.querySelector('.listName')
+const info = document.querySelector('.info')
 var nameList = ''
 var status = ''
 var img = ''
@@ -17,9 +17,10 @@ const onResponse = function(data) {
   nameList = getName(listOfCharacters.length, listOfCharacters)
   status = getStatus(listOfCharacters.length,listOfCharacters)
   img = getImage(listOfCharacters.length,listOfCharacters)
-  $('.info').append(`<p>Cantidad de personajes: ${generalData.count}</p><p>Páginas en total ${generalData.pages}</p><button onclick="showList()">Mostrar Lista</button><button onclick="nextList()">Siguiente</button>`)
-
+  info.innerHTML = `<p>Cantidad de personajes: ${generalData.count}</p><p>Páginas en total ${generalData.pages}</p><p>Estas es la página ${id}</p><br><button class="prev" onclick="prevList()">Anterior</button><button onclick="nextList()">Siguiente</button>`
+  showList()
 }
+
 
 function getName(num, character) {
   let nL = ''
@@ -48,7 +49,7 @@ function getImage(num, character) {
 function generatorList (num, arrPerson, arrState, arrImage) {
   let list = ''
   for(let i = 0 ; i < num ; i++) {
-    list += `<li><b>${arrPerson[i]}</b>: <i>${arrState[i]}<br><img src=${arrImage[i]} width=160 height=160/></li>`
+    list += `<li><b>${arrPerson[i]}</b>: <i>${arrState[i]}<br><img src=${arrImage[i]} width=200 height=200 /></li>`
   }
   return list
 }
@@ -61,16 +62,11 @@ function showList() {
   let arrName = prepArray(nameList)
   let arrStatus = prepArray(status)
   let arrImg = prepArray(img)
-  arrName.pop()  
-  arrStatus.pop()  
-  arrImg.pop()  
-  console.log(arrName)
-  console.log(arrStatus)
-  console.log(arrImg)
+  arrName.pop()
+  arrStatus.pop()
+  arrImg.pop()
   let content = generatorList(arrName.length, arrName, arrStatus, arrImg)
   list.innerHTML = content
-  
-  // $('.listName').append(content)
 }
 
 function showInfo(page) {
@@ -79,5 +75,19 @@ function showInfo(page) {
 }
 
 function nextList() {
-  list.innerHTML = "asdfoane"
+  id++
+  if(id >= 35) {
+    id = 1
+  }
+  const url = `${API_URL}${API_ALL_CHARACTERS}${nextPage.replace(':id',id)}`  
+  $.get(url, opts, onResponse)
+  console.log(url)
+}
+function prevList() {
+  id--
+  if(id === 0) {
+    id = 34
+  }
+  const url = `${API_URL}${API_ALL_CHARACTERS}${nextPage.replace(':id',id)}`  
+  $.get(url, opts, onResponse)
 }
